@@ -1,7 +1,9 @@
 
 import models
+import dataset
 import torchvision
 import torch.optim as optim
+import torch.utils.data as data
 
 class complete_net(nn.Module):
     def __init__(self):
@@ -26,7 +28,19 @@ print(device)
 criterion = nn.CrossEntropyLoss()
 optimizer = optim.SGD(cnn_net.parameters(), lr=0.001, momentum=0.9)
 
-# To do: define train_loader, val_loader
+transform = torchvision.transforms.Compose(
+    [torchvision.transforms.ToTensor(),
+    torchvision.transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
+place_dataset = PlaceDataset(image_dir = 'places_train/', transform=transform)
+dataset_len = len(place_dataset)
+train_size = 0.9*dataset_len
+val_size = 0.1*dataset_len
+train_dataset, val_dataset = data.random_split(place_dataset, [train_size, val_size])
+test_dataset = PlaceDataset(image_dir = 'places_test/', transform=transform)
+train_loader = data.DataLoader(train_dataset, batch_size=4, shuffle=True, num_workers=2)
+val_loader = data.DataLoader(val_dataset, batch_size=100, shuffle=False, num_workers=2)
+test_loader = data.DataLoader(test_dataset, batch_size=4, shuffle=False, num_workers=2)
+
 for epoch in range(10):
   
     running_loss = 0.0
@@ -34,7 +48,7 @@ for epoch in range(10):
   
     for i, data in enumerate(train_loader, 0):
     
-      inputs, labels = data
+      inputs, labels = data['image'], data['label']
       inputs, labels = inputs.to(device), labels.to(device)
     
       optimizer.zero_grad()
