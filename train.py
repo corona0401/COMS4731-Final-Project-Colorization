@@ -34,10 +34,10 @@ transform = torchvision.transforms.Compose(
     [torchvision.transforms.ToTensor(),
     torchvision.transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
 place_dataset = PlaceDataset(image_dir = 'places_train/', transform=transform)
+print(place_dataset[0]['image'].size())
 dataset_len = len(place_dataset)
 train_size = int(0.9*dataset_len)
 val_size = int(0.1*dataset_len)
-print(train_size)
 train_dataset, val_dataset = data.random_split(place_dataset, [train_size, val_size])
 test_dataset = PlaceDataset(image_dir = 'places_test/', transform=transform)
 train_loader = data.DataLoader(train_dataset, batch_size=4, shuffle=True, num_workers=2)

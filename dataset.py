@@ -33,6 +33,7 @@ class PlaceDataset(Dataset):
         g_image = rgb_image[1]
         b_image = rgb_image[2]
         grayscale_image = (r_image + g_image + b_image).div(3.0)
-        sample = {'image': rgb_image, 'label': grayscale_image}
+        grayscale_image = grayscale_image.unsqueeze(0)
+        sample = {'image': grayscale_image, 'label': rgb_image}
 
         return sample
