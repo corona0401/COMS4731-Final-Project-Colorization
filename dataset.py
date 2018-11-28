@@ -1,4 +1,8 @@
 import os
+from torch.utils.data import Dataset
+import torchvision.transforms as transforms
+from PIL import Image
+import numpy as np
 
 class PlaceDataset(Dataset):
 
@@ -21,14 +25,14 @@ class PlaceDataset(Dataset):
         return len(self.image_list)
 
     def __getitem__(self, idx):
-        img_name = image_list[idx]
-        image = io.imread(img_name)
-        image = Image.fromarray(np.transpose(image, (1, 2, 0)))
-        # Convert to grayscale
-        label = image.convert('LA')
-        sample = {'image': image, 'label': label}
-
-        if self.transform:
-            sample = self.transform(sample)
+        pil2tensor = transforms.ToTensor()
+        img_name = self.image_list[idx]
+        rgb_image = Image.open(img_name)
+        rgb_image = pil2tensor(rgb_image)
+        r_image = rgb_image[0]
+        g_image = rgb_image[1]
+        b_image = rgb_image[2]
+        grayscale_image = (r_image + g_image + b_image).div(3.0)
+        sample = {'image': rgb_image, 'label': grayscale_image}
 
         return sample

@@ -1,9 +1,11 @@
 
 import models
-import dataset
+from dataset import *
 import torchvision
+import torch
 import torch.optim as optim
 import torch.utils.data as data
+import torch.nn as nn
 
 class complete_net(nn.Module):
     def __init__(self):
@@ -26,15 +28,16 @@ color_net = complete_net()
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 print(device)
 criterion = nn.CrossEntropyLoss()
-optimizer = optim.SGD(cnn_net.parameters(), lr=0.001, momentum=0.9)
+optimizer = optim.SGD(color_net.parameters(), lr=0.001, momentum=0.9)
 
 transform = torchvision.transforms.Compose(
     [torchvision.transforms.ToTensor(),
     torchvision.transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
 place_dataset = PlaceDataset(image_dir = 'places_train/', transform=transform)
 dataset_len = len(place_dataset)
-train_size = 0.9*dataset_len
-val_size = 0.1*dataset_len
+train_size = int(0.9*dataset_len)
+val_size = int(0.1*dataset_len)
+print(train_size)
 train_dataset, val_dataset = data.random_split(place_dataset, [train_size, val_size])
 test_dataset = PlaceDataset(image_dir = 'places_test/', transform=transform)
 train_loader = data.DataLoader(train_dataset, batch_size=4, shuffle=True, num_workers=2)
@@ -62,7 +65,7 @@ for epoch in range(10):
       val_acc += val_accurancy(cnn_net, val_loader)
 
     
-     if i % 50 == 49:
+      if i % 50 == 49:
         print('[%d, %5d] training loss: %.3f validation accurancy: %.3f'
         	% (epoch + 1, i + 1, running_loss / 50, val_acc / 50))
         running_loss = 0.0
