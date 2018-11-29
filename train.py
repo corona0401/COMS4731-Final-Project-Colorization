@@ -37,10 +37,8 @@ dataset_len = len(place_dataset)
 train_size = int(0.9*dataset_len)
 val_size = int(0.1*dataset_len)
 train_dataset, val_dataset = data.random_split(place_dataset, [train_size, val_size])
-test_dataset = PlaceDataset(image_dir = 'places_test/', transform=transform)
 train_loader = data.DataLoader(train_dataset, batch_size=4, shuffle=True, num_workers=2)
 val_loader = data.DataLoader(val_dataset, batch_size=100, shuffle=False, num_workers=2)
-test_loader = data.DataLoader(test_dataset, batch_size=4, shuffle=False, num_workers=2)
 
 for epoch in range(1):
   
@@ -49,14 +47,14 @@ for epoch in range(1):
   
     for i, data in enumerate(train_loader, 0):
 
-      inputs, labels = data['image'], data['label']
-      inputs, labels = inputs.to(device), labels.to(device)
+      inputs, embeds, labels = data['image'], data['embedding'], data['label']
+      inputs, embeds, labels = inputs.to(device), embeds.to(device), labels.to(device)
 
       optimizer.zero_grad()
 
-      outputs = color_net(inputs)
-      print(outputs.shape)
-      print(labels.shape)
+      outputs = color_net(inputs, embeds)
+      print("output shape", outputs.shape)
+      print("label shape", labels.shape)
       loss = criterion(outputs, labels)
       loss.backward()
       optimizer.step()
@@ -72,3 +70,5 @@ for epoch in range(1):
         val_loss = 0.0
 
 print('Finished Training')
+
+torch.save(color_net.state_dict(), '/colornet_v1.pt')
