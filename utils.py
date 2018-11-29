@@ -1,6 +1,6 @@
 import torch
 
-def val_loss(net, val_loader, criterion, device):
+def compute_val_loss(net, val_loader, criterion, device):
   with torch.no_grad():
     for data in val_loader:
       images, labels = data

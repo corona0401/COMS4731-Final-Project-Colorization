@@ -66,7 +66,7 @@ for epoch in range(1):
       optimizer.step()
 
       running_loss += loss.item()
-      val_loss += val_loss(color_net, val_loader, criterion, device)
+      
 
     
       if i % 100 == 99:
