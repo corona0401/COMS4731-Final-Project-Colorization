@@ -1,5 +1,6 @@
 import models
 from dataset import *
+from utils import *
 import torchvision
 import torch
 import torch.optim as optim
@@ -48,7 +49,7 @@ test_loader = data.DataLoader(test_dataset, batch_size=4, shuffle=False, num_wor
 for epoch in range(1):
   
     running_loss = 0.0
-    val_acc = 0.0
+    val_loss = 0.0
   
     for i, data in enumerate(train_loader, 0):
 
@@ -65,13 +66,13 @@ for epoch in range(1):
       optimizer.step()
 
       running_loss += loss.item()
-      val_acc += val_accurancy(cnn_net, val_loader)
+      val_loss += val_loss(color_net, val_loader, criterion, device)
 
     
-      if i % 50 == 49:
+      if i % 100 == 99:
         print('[%d, %5d] training loss: %.3f validation accurancy: %.3f'
-       	% (epoch + 1, i + 1, running_loss / 50, val_acc / 50))
+       	% (epoch + 1, i + 1, running_loss / 100, val_loss / 100))
         running_loss = 0.0
-        val_acc = 0.0
+        val_loss = 0.0
 
 print('Finished Training')
