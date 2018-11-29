@@ -29,7 +29,7 @@ class global_feature_net(nn.Module):
         super(global_feature_net, self).__init__()
         self.conv1 = nn.Conv2d(512, 512, kernel_size=3, stride=2, padding=1, bias=False)
         self.conv2 = nn.Conv2d(512, 512, kernel_size=3, stride=1, padding=1, bias=False)
-        self.fc1 = nn.Linear(25088, 1024)
+        self.fc1 = nn.Linear(32768, 1024)
         self.fc2 = nn.Linear(1024, 512)
         self.fc3 = nn.Linear(512, 256)
 
@@ -39,7 +39,7 @@ class global_feature_net(nn.Module):
         x = F.relu(self.conv2(x))
         x = F.relu(self.conv1(x))
         x = F.relu(self.conv2(x))
-        x = x.view(-1, 25088)
+        x = x.view(-1, 32768)
         x = F.relu(self.fc1(x))
         x = F.relu(self.fc2(x))
         x = F.relu(self.fc3(x))
@@ -69,7 +69,7 @@ class upsample_color_net(nn.Module):
         self.conv5 = nn.Conv2d(64, 32, kernel_size=3, stride=1, padding=1, bias=False)
         self.conv6 = nn.Conv2d(32, 16, kernel_size=3, stride=1, padding=1, bias=False)
         self.conv7 = nn.Conv2d(16, 8, kernel_size=3, stride=1, padding=1, bias=False)
-        self.conv8 = nn.Conv2d(8, 2, kernel_size=3, stride=1, padding=1, bias=False)
+        self.conv8 = nn.Conv2d(8, 3, kernel_size=3, stride=1, padding=1, bias=False)
 
 
     def forward(self, x):

@@ -18,7 +18,10 @@ class complete_net(nn.Module):
         low = self.low_feature(x)
         mid = self.mid_feature(low)
         glb = self.global_feature(low)
-        mix = torch.cat((mid, glb), 0)
+        glb = glb.unsqueeze(2)
+        glb = glb.unsqueeze(2)
+        glb = glb.expand(1, 256, 32, 32)
+        mix = torch.cat((mid, glb), 1)
         res = self.upsample(mix)
         return res
 
@@ -33,13 +36,12 @@ transform = torchvision.transforms.Compose(
     [torchvision.transforms.ToTensor(),
     torchvision.transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
 place_dataset = PlaceDataset(image_dir = 'places_train/', transform=transform)
-print(place_dataset[0]['image'].size())
 dataset_len = len(place_dataset)
 train_size = int(0.9*dataset_len)
 val_size = int(0.1*dataset_len)
 train_dataset, val_dataset = data.random_split(place_dataset, [train_size, val_size])
 test_dataset = PlaceDataset(image_dir = 'places_test/', transform=transform)
-train_loader = data.DataLoader(train_dataset, batch_size=4, shuffle=True, num_workers=2)
+train_loader = data.DataLoader(train_dataset, batch_size=1, shuffle=True, num_workers=2)
 val_loader = data.DataLoader(val_dataset, batch_size=100, shuffle=False, num_workers=2)
 test_loader = data.DataLoader(test_dataset, batch_size=4, shuffle=False, num_workers=2)
 
@@ -52,11 +54,11 @@ for epoch in range(10):
     
       inputs, labels = data['image'], data['label']
       inputs, labels = inputs.to(device), labels.to(device)
-    
+
       optimizer.zero_grad()
 
       outputs = color_net(inputs)
-      loss = criterion(outputs, labels)
+      loss = criterion(outputs, labels.long())
       loss.backward()
       optimizer.step()
 

@@ -34,9 +34,7 @@ class PlaceDataset(Dataset):
             g_image = rgb_image[1]
             b_image = rgb_image[2]
             grayscale_image = (r_image + g_image + b_image).div(3.0)
-            grayscale_image = grayscale_image.unsqueeze_(-1)
-            grayscale_image = grayscale_image.expand(256,256,3)
-            grayscale_image = grayscale_image.transpose(2,0)
+            grayscale_image = grayscale_image.unsqueeze(0)
         else:
             grayscale_image = rgb_image
         sample = {'image': grayscale_image, 'label': rgb_image}
