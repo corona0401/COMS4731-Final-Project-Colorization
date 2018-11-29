@@ -5,7 +5,6 @@ from PIL import Image
 import numpy as np
 
 class PlaceDataset(Dataset):
-
     def __init__(self, image_dir, transform=None):
         """
         Args:
@@ -29,11 +28,17 @@ class PlaceDataset(Dataset):
         img_name = self.image_list[idx]
         rgb_image = Image.open(img_name)
         rgb_image = pil2tensor(rgb_image)
-        r_image = rgb_image[0]
-        g_image = rgb_image[1]
-        b_image = rgb_image[2]
-        grayscale_image = (r_image + g_image + b_image).div(3.0)
-        grayscale_image = grayscale_image.unsqueeze(0)
+        img_size = list(rgb_image.size())
+        if img_size[0] == 3:
+            r_image = rgb_image[0]
+            g_image = rgb_image[1]
+            b_image = rgb_image[2]
+            grayscale_image = (r_image + g_image + b_image).div(3.0)
+            grayscale_image = grayscale_image.unsqueeze_(-1)
+            grayscale_image = grayscale_image.expand(256,256,3)
+            grayscale_image = grayscale_image.transpose(2,0)
+        else:
+            grayscale_image = rgb_image
         sample = {'image': grayscale_image, 'label': rgb_image}
 
         return sample
