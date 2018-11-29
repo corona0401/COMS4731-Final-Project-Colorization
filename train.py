@@ -29,7 +29,7 @@ class complete_net(nn.Module):
 color_net = complete_net()
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 print(device)
-criterion = nn.CrossEntropyLoss()
+criterion = nn.MSELoss()
 optimizer = optim.SGD(color_net.parameters(), lr=0.001, momentum=0.9)
 
 transform = torchvision.transforms.Compose(
@@ -45,7 +45,7 @@ train_loader = data.DataLoader(train_dataset, batch_size=1, shuffle=True, num_wo
 val_loader = data.DataLoader(val_dataset, batch_size=100, shuffle=False, num_workers=2)
 test_loader = data.DataLoader(test_dataset, batch_size=4, shuffle=False, num_workers=2)
 
-for epoch in range(10):
+for epoch in range(1):
   
     running_loss = 0.0
     val_acc = 0.0
@@ -60,7 +60,7 @@ for epoch in range(10):
       outputs = color_net(inputs)
       print(outputs.shape)
       print(labels.shape)
-      loss = criterion(outputs, labels.long())
+      loss = criterion(outputs, labels)
       loss.backward()
       optimizer.step()
 
@@ -70,7 +70,7 @@ for epoch in range(10):
     
       if i % 50 == 49:
         print('[%d, %5d] training loss: %.3f validation accurancy: %.3f'
-        	% (epoch + 1, i + 1, running_loss / 50, val_acc / 50))
+       	% (epoch + 1, i + 1, running_loss / 50, val_acc / 50))
         running_loss = 0.0
         val_acc = 0.0
 
