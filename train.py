@@ -1,4 +1,3 @@
-
 import models
 from dataset import *
 import torchvision
@@ -10,7 +9,7 @@ import torch.nn as nn
 class complete_net(nn.Module):
     def __init__(self):
         super(complete_net, self).__init__()
-        self.low_feature = torchvision.models.vgg16()
+        self.low_feature = models.low_feature_net()
         self.mid_feature = models.mid_feature_net()
         self.global_feature = models.global_feature_net()
         self.upsample = models.upsample_color_net()
