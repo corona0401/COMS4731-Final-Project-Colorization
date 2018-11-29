@@ -10,22 +10,18 @@ import torch.nn as nn
 class complete_net(nn.Module):
     def __init__(self):
         super(complete_net, self).__init__()
-        self.low_feature = models.low_feature_net()
-        self.mid_feature = models.mid_feature_net()
-        self.global_feature = models.global_feature_net()
-        self.upsample = models.upsample_color_net()
+        self.encoder = models.encoder_net()
+        self.decoder = models.decoder_net()
 
-    def forward(self, x):
-        low = self.low_feature(x)
-        mid = self.mid_feature(low)
-        glb = self.global_feature(low)
-        glb = glb.unsqueeze(2)
-        glb = glb.unsqueeze(2)
-        glb = glb.expand(1, 256, 32, 32)
-        mix = torch.cat((mid, glb), 1)
-        res = self.upsample(mix)
+    def forward(self, x, emd):
+        end = self.encoder(x)
+        # concate end and emd to mix
+        # glb = glb.unsqueeze(2)
+        # glb = glb.unsqueeze(2)
+        # glb = glb.expand(1, 256, 32, 32)
+        # mix = torch.cat((mid, glb), 1)
+        res = self.decoder(mix)
         return res
-
 
 color_net = complete_net()
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
@@ -42,7 +38,7 @@ train_size = int(0.9*dataset_len)
 val_size = int(0.1*dataset_len)
 train_dataset, val_dataset = data.random_split(place_dataset, [train_size, val_size])
 test_dataset = PlaceDataset(image_dir = 'places_test/', transform=transform)
-train_loader = data.DataLoader(train_dataset, batch_size=1, shuffle=True, num_workers=2)
+train_loader = data.DataLoader(train_dataset, batch_size=4, shuffle=True, num_workers=2)
 val_loader = data.DataLoader(val_dataset, batch_size=100, shuffle=False, num_workers=2)
 test_loader = data.DataLoader(test_dataset, batch_size=4, shuffle=False, num_workers=2)
 
