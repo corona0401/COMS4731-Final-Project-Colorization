@@ -1,7 +1,6 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-import torchvision.models as models
 
 
 class encoder_net(nn.Module):
@@ -35,8 +34,8 @@ class decoder_net(nn.Module):
         self.conv2 = nn.Conv2d(128, 64, kernel_size=3, stride=1, padding=1, bias=False)
         self.conv3 = nn.Conv2d(64, 32, kernel_size=3, stride=1, padding=1, bias=False)
         self.conv4 = nn.Conv2d(32, 16, kernel_size=3, stride=1, padding=1, bias=False)
-        self.conv5 = nn.Conv2d(16, 2, kernel_size=3, stride=1, padding=1, bias=False)
-
+        self.conv5 = nn.Conv2d(16, 8, kernel_size=3, stride=1, padding=1, bias=False)
+        self.conv6 = nn.Conv2d(8, 2, kernel_size=3, stride=1, padding=1, bias=False)
 
     def forward(self, x):
         x = F.relu(self.conv1(x))
@@ -45,6 +44,7 @@ class decoder_net(nn.Module):
         x = F.upsample(x, scale_factor = 2)
         x = F.relu(self.conv3(x))
         x = F.relu(self.conv4(x))
-        x = F.tanh(self.conv5(x))
+        x = F.relu(self.conv5(x))
+        x = F.tanh(self.conv6(x))
         x = F.upsample(x, scale_factor = 2)
         return x
