@@ -11,18 +11,16 @@ class complete_net(nn.Module):
     def __init__(self):
         super(complete_net, self).__init__()
         self.encoder = encoder_net()
-        self.conv1 = nn.Conv2d(1256, 256, kernel_size=1, stride=1, padding=1, bias=False)
+        self.conv1 = nn.Conv2d(1256, 256, kernel_size=1, stride=1, padding=0, bias=False)
         self.decoder = decoder_net()
 
     def forward(self, x, emd):
         end = self.encoder(x)
-        print("encoder result shape", end.shape)
-        print("emd shape", emd.shape)
         # concate end and emd to mix
-        emd = emd.expand(1, 32, 32, 1000)
+        emd = emd.unsqueeze(1)
+        emd = emd.expand(end.shape[0], 32, 32, 1000)
         emd = emd.transpose(1, 3)
         mix = torch.cat((end, emd), 1)
-        print("mix shape", mix.shape)
         mix = F.relu(self.conv1(mix))
         res = self.decoder(mix)
         return res
@@ -38,10 +36,11 @@ transform = torchvision.transforms.Compose(
     torchvision.transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
 place_dataset = PlaceDataset(image_dir = 'places_train/', transform=transform)
 dataset_len = len(place_dataset)
-train_size = int(0.9*dataset_len)
+train_size = int(0.001*dataset_len)
+print(train_size)
 val_size = int(dataset_len-train_size)
 train_dataset, val_dataset = data.random_split(place_dataset, [train_size, val_size])
-train_loader = data.DataLoader(train_dataset, batch_size=1, shuffle=True, num_workers=2)
+train_loader = data.DataLoader(train_dataset, batch_size=4, shuffle=True, num_workers=2)
 val_loader = data.DataLoader(val_dataset, batch_size=100, shuffle=False, num_workers=2)
 
 for epoch in range(1):
@@ -58,14 +57,11 @@ for epoch in range(1):
 
       outputs = color_net(inputs.float(), embeds.float())
      
-      print("output shape", outputs.shape)
-      print("label shape", labels.shape)
       loss = criterion(outputs, labels.float())
       loss.backward()
       optimizer.step()
 
       running_loss += loss.item()
-      print(running_loss)
 
     
       if i % 100 == 99:
@@ -76,4 +72,4 @@ for epoch in range(1):
 
 print('Finished Training')
 
-torch.save(color_net.state_dict(), '/colornet_v1.pt')
+torch.save(color_net.state_dict(), 'colornet_v1.pth')

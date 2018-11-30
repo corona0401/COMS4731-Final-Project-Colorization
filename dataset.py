@@ -40,15 +40,12 @@ class PlaceDataset(Dataset):
         with torch.no_grad():
             emd = self.vgg16(grayscale_img)
         emd = emd.numpy()
-        print("embedding shape", emd.shape)
         lab_img = rgb2lab(rgb_img)
         X = lab_img[:,:,0]
         X = np.expand_dims(X, axis = 2)
         X = np.swapaxes(X, 0, 2)
-        print("img shape", X.shape)
         Y = lab_img[:,:,1:] / 128
         Y = np.swapaxes(Y, 0, 2)
-        print("label shape", Y.shape)
         sample = {'image': X, 'embedding': emd, 'label': Y}
 
         return sample
