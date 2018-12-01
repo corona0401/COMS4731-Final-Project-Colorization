@@ -29,7 +29,7 @@ color_net = complete_net()
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 print(device)
 criterion = nn.MSELoss()
-optimizer = optim.SGD(color_net.parameters(), lr=0.001, momentum=0.9)
+optimizer = optim.RMSprop((color_net.parameters(), lr=0.001, momentum=0.9)
 
 transform = torchvision.transforms.Compose(
     [torchvision.transforms.ToTensor(),
