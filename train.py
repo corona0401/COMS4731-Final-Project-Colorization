@@ -42,9 +42,9 @@ if __name__ == '__main__':
     # changes:
     # didn't use the transform
     # place_dataset = PlaceDataset(image_dir = 'places_train/', transform=transform)
-    place_dataset = PlaceDataset(image_dir = 'places_train/')
+    place_dataset = PlaceDataset(image_dir = 'train_church/')
     dataset_len = len(place_dataset)
-    train_size = int(1.0*dataset_len)
+    train_size = int(0.1*dataset_len)
     print(train_size)
     val_size = int(dataset_len-train_size)
     train_dataset, val_dataset = data.random_split(place_dataset, [train_size, val_size])
@@ -53,8 +53,11 @@ if __name__ == '__main__':
     train_loader_size = len(train_loader)
     print(train_loader_size)
     total_loss_list = []
+    
+    with open("loss.csv", "w") as f:
+        f.write("epoch,loss\n")
 
-    for epoch in range(50):
+    for epoch in range(1):
       
         running_loss = 0.0
         val_loss = 0.0
@@ -87,16 +90,11 @@ if __name__ == '__main__':
 
         if (epoch+1)%1 == 0:
             torch.save(color_net.state_dict(), 'colornet_v1_%d.pth'%(epoch+1))
-            total_loss = total_loss * 1e2
-            print(total_loss)
-            total_loss_list.append(total_loss / train_loader_size)
+            total_loss = total_loss * 1e5
+            epoch_loss = total_loss / train_loader_size
             total_loss = 0.0
-
+            with open("loss.csv", "w") as f:
+                f.write(",".join([str(epoch), str(epoch_loss)]))
+                f.write("\n")
 
     print('Finished Training')
-
-    with open("loss.csv", "w") as f:
-        f.write("epoch,loss\n")
-        for i in range(len(total_loss_list)):
-            f.write(",".join([str(i), str(total_loss_list[i])]))
-            f.write("\n")

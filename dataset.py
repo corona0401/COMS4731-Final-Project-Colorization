@@ -1,4 +1,5 @@
 import os
+from torch.utils.data import Dataset
 from torchvision import datasets
 import torchvision.models as models
 from skimage import io
@@ -7,7 +8,7 @@ from skimage.transform import resize
 import numpy as np
 import torch
 
-class PlaceDataset(datasets.ImageFolder):
+class PlaceDataset(Dataset):
     
     def __init__(self, image_dir, transform=None):
         """
@@ -16,10 +17,10 @@ class PlaceDataset(datasets.ImageFolder):
             transform (callable, optional): Optional transform to be applied
                 on a sample.
         """
-        super(PlaceDataset,self).__init__(image_dir)
+       
         imagelist = []
-        for filename in os.listdir(image_dir + "places_train"):
-            path = os.path.join(image_dir + "places_train",filename)
+        for filename in os.listdir(image_dir):
+            path = os.path.join(image_dir,filename)
             imagelist.append(path)
         self.image_list = imagelist
         self.image_dir = image_dir
@@ -32,7 +33,7 @@ class PlaceDataset(datasets.ImageFolder):
 
     def __getitem__(self, idx):
         img_name = self.image_list[idx]
-        rgb_img = self.loader(img_name)
+        rgb_img = io.imread(img_name)
         rgb_img = np.array(rgb_img, dtype=float)
         rgb_img = 1.0/255*rgb_img
         if len(rgb_img.shape) < 3:
