@@ -1,5 +1,5 @@
 import os
-from torch.utils.data import Dataset
+from torchvision import datasets
 import torchvision.models as models
 from skimage import io
 from skimage.color import rgb2lab, lab2rgb, rgb2gray, gray2rgb
@@ -7,7 +7,8 @@ from skimage.transform import resize
 import numpy as np
 import torch
 
-class PlaceDataset(Dataset):
+class PlaceDataset(datasets.ImageFolder):
+    
     def __init__(self, image_dir, transform=None):
         """
         Args:
@@ -15,23 +16,27 @@ class PlaceDataset(Dataset):
             transform (callable, optional): Optional transform to be applied
                 on a sample.
         """
+        super(PlaceDataset,self).__init__(image_dir)
         imagelist = []
-        for filename in os.listdir(image_dir):
-            path = os.path.join(image_dir,filename)
+        for filename in os.listdir(image_dir + "places_train"):
+            path = os.path.join(image_dir + "places_train",filename)
             imagelist.append(path)
         self.image_list = imagelist
         self.image_dir = image_dir
         self.transform = transform
         self.vgg16 = models.vgg16(pretrained=True)
+    
 
     def __len__(self):
         return len(self.image_list)
 
     def __getitem__(self, idx):
         img_name = self.image_list[idx]
-        rgb_img = io.imread(img_name)
+        rgb_img = self.loader(img_name)
         rgb_img = np.array(rgb_img, dtype=float)
         rgb_img = 1.0/255*rgb_img
+        if len(rgb_img.shape) < 3:
+            rgb_img = gray2rgb(rgb_img)
         # changes
         # even though the channel L of color space Lab is
         # (pretty much) the same thing as the gray scale

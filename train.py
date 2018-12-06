@@ -31,8 +31,9 @@ if __name__ == '__main__':
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     print(device)
     color_net.to(device)
+    color_net.cuda()
     criterion = nn.MSELoss()
-    optimizer = optim.RMSprop(color_net.parameters(), lr=1e-5, momentum=0.9)
+    optimizer = optim.RMSprop(color_net.parameters(), lr=1e-6, momentum=0.9)
     # optimizer = optim.Adam(color_net.parameters(), lr=1e-3)
 
     transform = torchvision.transforms.Compose(
@@ -47,8 +48,8 @@ if __name__ == '__main__':
     print(train_size)
     val_size = int(dataset_len-train_size)
     train_dataset, val_dataset = data.random_split(place_dataset, [train_size, val_size])
-    train_loader = data.DataLoader(train_dataset, batch_size=1, shuffle=False, num_workers=0)
-    val_loader = data.DataLoader(val_dataset, batch_size=4, shuffle=False, num_workers=0)
+    train_loader = data.DataLoader(train_dataset, batch_size=16, shuffle=True, num_workers=16)
+    val_loader = data.DataLoader(val_dataset, batch_size=4, shuffle=False, num_workers=16)
 
 
 
@@ -81,6 +82,9 @@ if __name__ == '__main__':
             % (epoch + 1, i + 1, running_loss / loss_display_step, val_loss / loss_display_step))
             running_loss = 0.0
             val_loss = 0.0
+
+        if (epoch+1)%1 == 0:
+            torch.save(color_net.state_dict(), 'colornet_v1_%d.pth'%(epoch+1))
 
 
     print('Finished Training')
