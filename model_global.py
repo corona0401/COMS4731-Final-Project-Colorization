@@ -3,17 +3,15 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 
-class encoder_net(nn.Module):
+class low_feature_net(nn.Module):
     def __init__(self):
-        super(encoder_net, self).__init__()
+        super(low_feature_net, self).__init__()
         self.conv1 = nn.Conv2d(1, 64, kernel_size=3, stride=2, padding=1, bias=False)
         self.conv2 = nn.Conv2d(64, 128, kernel_size=3, stride=1, padding=1, bias=False)
         self.conv3 = nn.Conv2d(128, 128, kernel_size=3, stride=2, padding=1, bias=False)
         self.conv4 = nn.Conv2d(128, 256, kernel_size=3, stride=1, padding=1, bias=False)
         self.conv5 = nn.Conv2d(256, 256, kernel_size=3, stride=2, padding=1, bias=False)
         self.conv6 = nn.Conv2d(256, 512, kernel_size=3, stride=1, padding=1, bias=False)
-        self.conv7 = nn.Conv2d(512, 512, kernel_size=3, stride=1, padding=1, bias=False)
-        self.conv8 = nn.Conv2d(512, 256, kernel_size=3, stride=1, padding=1, bias=False)
 
     def forward(self, x):
         x = F.relu(self.conv1(x))
@@ -22,8 +20,18 @@ class encoder_net(nn.Module):
         x = F.relu(self.conv4(x))
         x = F.relu(self.conv5(x))
         x = F.relu(self.conv6(x))
-        x = F.relu(self.conv7(x))
-        x = F.relu(self.conv8(x))
+        return x
+
+
+class mid_feature_net(nn.Module):
+    def __init__(self):
+        super(mid_feature_net, self).__init__()
+        self.conv1 = nn.Conv2d(512, 512, kernel_size=3, stride=1, padding=1)
+        self.conv2 = nn.Conv2d(512, 256, kernel_size=3, stride=1, padding=1)
+
+    def forward(self, x):
+        x = F.relu(self.conv1(x))
+        x = F.relu(self.conv2(x))
         return x
 
 
@@ -50,20 +58,47 @@ class decoder_net(nn.Module):
         return x
 
 
+class global_feature_net(nn.Module):
+    def __init__(self):
+        super(global_feature_net, self).__init__()
+        self.conv1 = nn.Conv2d(512, 512, kernel_size=3, stride=2, padding=1)
+        self.conv2 = nn.Conv2d(512, 512, kernel_size=3, stride=1, padding=1)
+        self.conv3 = nn.Conv2d(512, 512, kernel_size=3, stride=2, padding=1)
+        self.conv4 = nn.Conv2d(512, 512, kernel_size=3, stride=1, padding=1)
+        self.fc1 = nn.Linear(32768, 1024)
+        self.fc2 = nn.Linear(1024, 512)
+        self.fc3 = nn.Linear(512, 256)
+
+    def forward(self, x):
+        x = F.relu(self.conv1(x))
+        x = F.relu(self.conv2(x))
+        x = F.relu(self.conv3(x))
+        x = F.relu(self.conv4(x))
+        x = x.view(-1, 32768)
+        x = F.relu(self.fc1(x))
+        x = F.relu(self.fc2(x))
+        x = F.relu(self.fc3(x))
+        return x
+
+
 class complete_net(nn.Module):
     def __init__(self):
         super(complete_net, self).__init__()
-        self.encoder = encoder_net()
-        self.conv1 = nn.Conv2d(1256, 256, kernel_size=1, stride=1, padding=0, bias=False)
+        self.low_feature = low_feature_net()
+        self.global_feature = global_feature_net()
+        self.mid_feature = mid_feature_net()
         self.decoder = decoder_net()
+        self.conv1 = nn.Conv2d(512, 256, kernel_size=1, stride=1, padding=0, bias=False)
 
-    def forward(self, x, emd):
-        end = self.encoder(x)
-        # concate end and emd to mix
-        emd = emd.unsqueeze(1)
-        emd = emd.expand(end.shape[0], 32, 32, 1000)
-        emd = emd.transpose(1, 3)
-        mix = torch.cat((end, emd), 1)
+    def forward(self, x):
+        x1 = self.low_feature(x)
+        x2 = x1.clone()
+        mid_out = self.mid_feature(x2)
+        global_out = self.global_feature(x1)
+        global_out = global_out.unsqueeze(2)
+        global_out = global_out.unsqueeze(2)
+        global_out = global_out.expand(mid_out.shape[0], 256, 32, 32)
+        mix = torch.cat((global_out, mid_out), 1)
         mix = F.relu(self.conv1(mix))
         res = self.decoder(mix)
         return res

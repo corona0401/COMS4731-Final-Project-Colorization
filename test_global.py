@@ -1,5 +1,5 @@
 from dataset import *
-from models import *
+from model_global import *
 from skimage.io import imsave
 import torch.utils.data as data
 import torch
@@ -14,15 +14,15 @@ test_loader = data.DataLoader(test_dataset, batch_size=5, shuffle=False, num_wor
 
 # get the pre-trained model
 color_net = complete_net()
-color_net.load_state_dict(torch.load('colornet_v1.pth'))
+color_net.load_state_dict(torch.load('colornet_global_v1_10.pth'))
 color_net.eval()
 
 # Test model
 dataiter = iter(test_loader)
 data = dataiter.next()
-inputs, embeds, labels = data['image'], data['embedding'], data['label']
+inputs, labels = data['image'], data['label']
 with torch.no_grad():
-    output = color_net(inputs.float(), embeds.float())
+    output = color_net(inputs.float())
 
 # input: 1 x H x W
 # output: 2 x H x W
