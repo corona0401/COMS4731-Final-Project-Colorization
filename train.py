@@ -26,7 +26,7 @@ if __name__ == '__main__':
     # place_dataset = PlaceDataset(image_dir = 'places_train/', transform=transform)
     place_dataset = PlaceDataset(image_dir = 'train_church/')
     dataset_len = len(place_dataset)
-    train_size = int(0.1*dataset_len)
+    train_size = int(1.0*dataset_len)
     print(train_size)
     val_size = int(dataset_len-train_size)
     train_dataset, val_dataset = data.random_split(place_dataset, [train_size, val_size])
@@ -75,7 +75,7 @@ if __name__ == '__main__':
             total_loss = total_loss * 1e5
             epoch_loss = total_loss / train_loader_size
             total_loss = 0.0
-            with open("loss.csv", "w") as f:
+            with open("loss.csv", "a") as f:
                 f.write(",".join([str(epoch), str(epoch_loss)]))
                 f.write("\n")
 
