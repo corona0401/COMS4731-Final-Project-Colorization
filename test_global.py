@@ -14,7 +14,7 @@ test_loader = data.DataLoader(test_dataset, batch_size=5, shuffle=False, num_wor
 
 # get the pre-trained model
 color_net = complete_net()
-color_net.load_state_dict(torch.load('colornet_global_v1_10.pth'))
+color_net.load_state_dict(torch.load('colornet_global_v1.pth'))
 color_net.eval()
 
 # Test model

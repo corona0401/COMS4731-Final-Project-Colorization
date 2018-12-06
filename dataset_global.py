@@ -53,10 +53,6 @@ class PlaceDataset(Dataset):
         X = lab_img[:,:,0]
         # notice that here X is range [0,100]
         X = X / 100
-        grayscale_img = gray2rgb(X)
-        grayscale_img = torch.from_numpy(grayscale_img).float()
-        grayscale_img = grayscale_img.transpose(0,2)
-        grayscale_img = grayscale_img.unsqueeze(0)
 
         # changes
         '''
