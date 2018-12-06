@@ -50,43 +50,53 @@ if __name__ == '__main__':
     train_dataset, val_dataset = data.random_split(place_dataset, [train_size, val_size])
     train_loader = data.DataLoader(train_dataset, batch_size=16, shuffle=True, num_workers=16)
     val_loader = data.DataLoader(val_dataset, batch_size=4, shuffle=False, num_workers=16)
-
-
+    train_loader_size = len(train_loader)
+    print(train_loader_size)
+    total_loss_list = []
 
     for epoch in range(50):
       
         running_loss = 0.0
         val_loss = 0.0
-      
+        loss_display_step = 5
+        total_loss = 0.0
+
         for i, data in enumerate(train_loader, 0):
 
-          inputs, embeds, labels = data['image'], data['embedding'], data['label']
-          inputs, embeds, labels = inputs.to(device), embeds.to(device), labels.to(device)
+            inputs, embeds, labels = data['image'], data['embedding'], data['label']
+            inputs, embeds, labels = inputs.to(device), embeds.to(device), labels.to(device)
           
-          optimizer.zero_grad()
+            optimizer.zero_grad()
 
-          outputs = color_net(inputs.float(), embeds.float())
+            outputs = color_net(inputs.float(), embeds.float())
 
-          loss = criterion(outputs, labels.float())
-          loss.backward()
-          optimizer.step()
+            loss = criterion(outputs, labels.float())
+            loss.backward()
+            optimizer.step()
 
-          running_loss += loss.item()
+            running_loss += loss.item()
+            total_loss += loss.item()
 
-          # print(i)
-          loss_display_step = 5
-          if i % loss_display_step == loss_display_step-1:
-            # make running_loss larger to see the small changes...
-            running_loss = running_loss * 1e5
-            print('[%d, %5d] training loss: %.3f validation accurancy: %.3f'
-            % (epoch + 1, i + 1, running_loss / loss_display_step, val_loss / loss_display_step))
-            running_loss = 0.0
-            val_loss = 0.0
+            if i % loss_display_step == loss_display_step-1:
+                # make running_loss larger to see the small changes...
+                running_loss = running_loss * 1e5
+                print('[%d, %5d] training loss: %.3f validation accurancy: %.3f'
+                % (epoch + 1, i + 1, running_loss / loss_display_step, val_loss / loss_display_step))
+                running_loss = 0.0
+                val_loss = 0.0
 
         if (epoch+1)%1 == 0:
             torch.save(color_net.state_dict(), 'colornet_v1_%d.pth'%(epoch+1))
+            total_loss = total_loss * 1e2
+            print(total_loss)
+            total_loss_list.append(total_loss / train_loader_size)
+            total_loss = 0.0
 
 
     print('Finished Training')
 
-    torch.save(color_net.state_dict(), 'colornet_v1.pth')
+    with open("loss.csv", "w") as f:
+        f.write("epoch,loss\n")
+        for i in range(len(total_loss_list)):
+            f.write(",".join([str(i), str(total_loss_list[i])]))
+            f.write("\n")
