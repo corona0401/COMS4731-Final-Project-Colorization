@@ -31,7 +31,7 @@ def recon_rgb(_input,_output):
     lab = np.zeros((256, 256, 3))
     lab[:,:,0] = _input[0,:,:]*100
     lab[:,:,1:3] = np.transpose(_output,(1,2,0))*128
-    rgb = (lab2rgb(lab)*256).astype(np.uint8)
+    rgb = (lab2rgb(lab)*255).astype(np.uint8)
     return rgb
 
 # Output colorizations
