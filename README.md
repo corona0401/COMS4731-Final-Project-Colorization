@@ -9,7 +9,7 @@ This is the final project for Fall 2018 COMS4731 Computer Vision course in Colum
 
 * Using the pre-trained model
 
-  We provide two pre-trained models. `color_net.pth` is our baseline model, in which we combines the classification output with the low-level image features. `color_net_global.pth` is our best model, in which we combines the global-level image features with the low-level image features. 
+  We provide two pre-trained models. `colornet.pth` is our baseline model, in which we combines the classification output with the low-level image features. `colornet_global.pth` is our best model, in which we combines the global-level image features with the low-level image features. 
   
   If you want to use `colornet.pth`: in `test.py`, run `python test.py`. The result will be in the result folder.
   
