@@ -10,11 +10,11 @@ transform = torchvision.transforms.Compose(
     [torchvision.transforms.ToTensor(),
     torchvision.transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
 test_dataset = PlaceDataset(image_dir = 'places_test/', transform=transform)
-test_loader = data.DataLoader(test_dataset, batch_size=30, shuffle=False, num_workers=2)
+test_loader = data.DataLoader(test_dataset, batch_size=29, shuffle=False, num_workers=2)
 
 # get the pre-trained model
 color_net = complete_net()
-color_net.load_state_dict(torch.load('colornet_global_v1_100.pth'))
+color_net.load_state_dict(torch.load('colornet_global.pth'))
 color_net.eval()
 
 # Test model
@@ -38,15 +38,15 @@ def recon_rgb(_input,_output):
 for i in range(len(output)):
     cur = np.zeros((256, 256, 3))
     
-    imsave("result/img_"+str(i)+"_input.png", inputs[i][0])
+    imsave("result_global/img_"+str(i)+"_input.png", inputs[i][0])
     
-    #cur[:,:,0] = inputs[i][0,:,:]*100
+    #cur[:,:,0] = inputs[i][0,:,:]
     #cur[:,:,1:] = np.transpose(output[i],(1,2,0))*128
     #imsave("result/img_"+str(i)+"_pred.png", lab2rgb(cur))
-    imsave("result/img_"+str(i)+"_pred.png", recon_rgb(inputs[i],output[i]))
+    imsave("result_global/img_"+str(i)+"_pred.png", recon_rgb(inputs[i],output[i]))
 
     #cur[:,:,0] = inputs[i][0,:,:]*100
     #cur[:,:,1:] = np.transpose(labels[i],(1,2,0))*128
     #imsave("result/img_"+str(i)+"_gt.png", lab2rgb(cur))
-    imsave("result/img_"+str(i)+"_gt.png", recon_rgb(inputs[i],labels[i]))
+    imsave("result_global/img_"+str(i)+"_gt.png", recon_rgb(inputs[i],labels[i]))
     

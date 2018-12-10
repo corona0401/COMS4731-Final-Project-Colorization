@@ -10,11 +10,11 @@ transform = torchvision.transforms.Compose(
     [torchvision.transforms.ToTensor(),
     torchvision.transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
 test_dataset = PlaceDataset(image_dir = 'places_test/', transform=transform)
-test_loader = data.DataLoader(test_dataset, batch_size=5, shuffle=False, num_workers=2)
+test_loader = data.DataLoader(test_dataset, batch_size=29, shuffle=False, num_workers=2)
 
 # get the pre-trained model
 color_net = complete_net()
-color_net.load_state_dict(torch.load('colornet_v1.pth'))
+color_net.load_state_dict(torch.load('colornet.pth'))
 color_net.eval()
 
 # Test model
